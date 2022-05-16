@@ -1,0 +1,80 @@
+<?php
+/**
+ * MagePrince
+ * Copyright (C) 2020 Mageprince <info@mageprince.com>
+ *
+ * @package Mageprince_BuyNow
+ * @copyright Copyright (c) 2020 Mageprince (http://www.mageprince.com/)
+ * @license http://opensource.org/licenses/gpl-3.0.html GNU General Public License,version 3 (GPL-3.0)
+ * @author MagePrince <info@mageprince.com>
+ */
+?>
+<?php /** @var \Magento\Catalog\Block\Product\View $block */ ?>
+<?php $_product = $block->getProduct(); ?>
+<?php $_productType = $block->getProductTypes(); ?>
+<?php $_productFinalPrice = $block->getGroupedProductPrice(); ?>
+<?php $helper = $this->helper(\Mageprince\BuyNow\Helper\Data::class); ?>
+<?php $formId = $helper->getAddToCartFormId(); ?>
+<?php $buttonTitle = $helper->getButtonTitle() ?>
+<?php
+$groupedHelper= $this->helper(Codilar\Catalog\Helper\GroupedProductPrice :: class);
+?>
+<div class="buynow-button">
+    <button type="submit"
+            title="<?= $block->escapeHtml(__($buttonTitle)) ?>"
+            id="buy-now"
+            class="action primary buy-now-btn"
+            data-mage-init='
+            {
+                "Mageprince_BuyNow/js/buy-now": {
+                    "form": "#<?= $block->escapeHtml($formId); ?>"
+                }
+            }
+            '>
+        <span><?= $block->escapeHtml(__($buttonTitle)) ?></span>
+    </button>
+</div>
+<div class="buynow-button">
+    <button type="button"
+            title="<?= $block->escapeHtml(__('Print')) ?>"
+            id="print-pdp"
+            class="action primary print-pdp-btn"
+            onclick="myFunction()"
+            >
+        <span><?= $block->escapeHtml(__('Print')) ?></span>
+    </button>
+</div>
+<div id="printPdp" style="display:none;">
+    <table style="width:100%; border:1px solid black;">
+        <tr style="border:1px solid black; font-size:16px; ">
+            <th style="border:1px solid black;">Product Name</th>
+            <th style="border:1px solid black;">SKU</th>
+            <th style="border:1px solid black;">Price</th>
+        </tr>
+        <tr style="border:1px solid black; font-size:14px; text-align:center;">
+            <td style="border:1px solid black;">
+                <?php echo($_product->getName()) ?>
+            </td>
+            <td style="border:1px solid black;">
+                <?php echo($_product->getSku()) ?>
+            </td>
+            <td style="border:1px solid black;">
+                <?php $_product->getTypeId()==='grouped'?
+                    print_r($groupedHelper->getPriceCurrency($groupedHelper->getGroupedFinalPrice($_product))):
+                    print_r($groupedHelper->getPriceCurrency($groupedHelper->getTaxAmount($_product,($_product->getFinalPrice()),true))); ?>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript" src="<?= $block->getJsLink() ?>"></script>
+<script>
+    function myFunction() {
+        var prtContent = document.getElementById("printPdp");
+        var WinPrint = window.open('', '', 'right=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+        WinPrint.document.write(prtContent.innerHTML);
+        WinPrint.document.close();
+        WinPrint.focus();
+        WinPrint.print();
+        WinPrint.close();
+    }
+</script>
